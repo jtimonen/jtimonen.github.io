@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Juho Timonen</title>
+    <link>/</link>
+    <description>Recent content on Juho Timonen</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>&amp;copy; 2021 Juho Timonen
+</copyright>
+    <lastBuildDate>Tue, 26 Oct 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>lgpr: an interpretable non-parametric method for inferring covariate effects from longitudinal data. J Timonen, H Mannerström, A Vehtari, and H Lähdesmäki. Bioinformatics (2021).</title>
+      <link>/docs/lgpr/</link>
+      <pubDate>Thu, 21 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/docs/lgpr/</guid>
+      <description>An interpretable method for non-parametric analysis of longitudinal data using additive Gaussian processes. Designed for identifying relevant categorical and continuous covariates. See also the lgpr R-package on CRAN.
+Link to full article here.</description>
+    </item>
+    
+    <item>
+      <title>A Probabilistic Framework for Molecular Network Structure Inference by Means of Mechanistic Modeling. J Timonen, H Mannerström, H Lähdesmäki and J Intosalmi. IEEE/ACM Transactions on Computational Biology and Bioinformatics (2018).</title>
+      <link>/docs/odemcmc/</link>
+      <pubDate>Tue, 10 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/docs/odemcmc/</guid>
+      <description>A Markov chain Monte Carlo approach for performing Bayesian model structure inference over ODE models. The method is applied to obtain probabilistic predictions on the molecular interactions that are active in different phases of Th17 cell differentiation.
+Link to full article here.</description>
+    </item>
+    
+    <item>
+      <title>First post</title>
+      <link>/posts/first-post/</link>
+      <pubDate>Tue, 26 Oct 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/posts/first-post/</guid>
+      <description>&lt;p&gt;Hello, this is my website.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
