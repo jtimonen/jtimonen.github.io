@@ -8,11 +8,11 @@
     <language>en</language>
     <copyright>&amp;copy; 2021 Juho Timonen
 </copyright>
-    <lastBuildDate>Thu, 21 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Bayesian Methods</title>
       <link>/tags/bayesian-methods/</link>
-      <pubDate>Thu, 21 Jan 2021 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 03 Nov 2021 00:00:00 +0000</pubDate>
       
       <guid>/tags/bayesian-methods/</guid>
       <description></description>
@@ -21,9 +21,27 @@
     <item>
       <title>Bioinformatics</title>
       <link>/tags/bioinformatics/</link>
-      <pubDate>Thu, 21 Jan 2021 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 03 Nov 2021 00:00:00 +0000</pubDate>
       
       <guid>/tags/bioinformatics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Molecular Networks</title>
+      <link>/tags/molecular-networks/</link>
+      <pubDate>Wed, 03 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/molecular-networks/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ODEs</title>
+      <link>/tags/odes/</link>
+      <pubDate>Wed, 03 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/tags/odes/</guid>
       <description></description>
     </item>
     
@@ -51,24 +69,6 @@
       <pubDate>Thu, 21 Jan 2021 00:00:00 +0000</pubDate>
       
       <guid>/tags/stan/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Molecular Networks</title>
-      <link>/tags/molecular-networks/</link>
-      <pubDate>Tue, 10 Apr 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/tags/molecular-networks/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>ODEs</title>
-      <link>/tags/odes/</link>
-      <pubDate>Tue, 10 Apr 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/tags/odes/</guid>
       <description></description>
     </item>
     

@@ -8,13 +8,22 @@
     <language>en</language>
     <copyright>&amp;copy; 2021 Juho Timonen
 </copyright>
-    <lastBuildDate>Tue, 10 Apr 2018 00:00:00 +0000</lastBuildDate><atom:link href="/tags/odes/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="/tags/odes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Scalable Mixed-domain Gaussian Processes. J Timonen and H Lähdesmäki. arXiv:2111.02019 (2021).</title>
+      <link>/docs/pub_03/</link>
+      <pubDate>Wed, 03 Nov 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/docs/pub_03/</guid>
+      <description>Gaussian process (GP) models that combine both categorical and continuous input variables have found use e.g. in longitudinal data analysis and computer experiments. However, standard inference for these models has the typical cubic scaling, and common scalable approximation schemes for GPs cannot be applied since the covariance function is non-continuous. In this work, we derive a basis function approximation scheme for mixed-domain covariance functions, which scales linearly with respect to the number of observations and total number of basis functions.</description>
+    </item>
+    
     <item>
       <title>A Probabilistic Framework for Molecular Network Structure Inference by Means of Mechanistic Modeling. J Timonen, H Mannerström, H Lähdesmäki and J Intosalmi. IEEE/ACM Transactions on Computational Biology and Bioinformatics (2018).</title>
-      <link>/docs/odemcmc/</link>
+      <link>/docs/pub_01/</link>
       <pubDate>Tue, 10 Apr 2018 00:00:00 +0000</pubDate>
       
-      <guid>/docs/odemcmc/</guid>
+      <guid>/docs/pub_01/</guid>
       <description>A Markov chain Monte Carlo approach for performing Bayesian model structure inference over ODE models. The method is applied to obtain probabilistic predictions on the molecular interactions that are active in different phases of Th17 cell differentiation.
 Link to full article here.</description>
     </item>
