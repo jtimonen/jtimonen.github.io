@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang='en' ><meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+
+
+<title>Understanding the Stan codebase (Part 1) | Juho Timonen</title>
+
+<meta name="generator" content="Hugo Eureka 0.8.4" />
+<link rel="stylesheet" href="/css/eureka.min.css">
+<script defer src="/js/eureka.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload"
+  href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+  as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/styles/solarized-light.min.css"
+   media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/highlight.min.js"
+   crossorigin></script>
+
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/languages/dart.min.js"
+     crossorigin></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/js/all.min.js"
+   integrity="sha256-uNYoXefWRqv&#43;PsIF/OflNmwtKM4lStn9yrz2gVl6ymo="  crossorigin></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css"
+   integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3&#43;Aro6EYUG4&#43;cU&#43;KJWu/X"  media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" 
+  integrity="sha384-g7c&#43;Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI&#43;sEnkvrMWph2EDg4"  crossorigin></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js"
+   integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC&#43;Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa"  crossorigin></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false },
+        { left: "\\[", right: "\\]", display: true }
+      ],
+    });
+  });
+</script>
+
+
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@8.9.2/dist/mermaid.min.js" 
+  integrity="sha256-Zmpaaj&#43;GXFsPF5WdPArSrnW3b30dovldeKsW00xBVwE="  crossorigin></script>
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/images/icon_hu07c85376caca4551e603fa2d74701141_5499_32x32_fill_box_center_3.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/icon_hu07c85376caca4551e603fa2d74701141_5499_180x180_fill_box_center_3.png">
+
+<meta name="description"
+  content="Overview of the different libraries related to Stan and their organization, and finding and entry point to the internal C&#43;&#43; code.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1 ,
+      "name":"Posts",
+      "item":"/posts/"},{
+      "@type": "ListItem",
+      "position": 2 ,
+      "name":"Understanding the Stan codebase (Part 1)",
+      "item":"/posts/post-01/"}]
+}
+</script>
+
+
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/posts/post-01/"
+    },
+    "headline": "Understanding the Stan codebase (Part 1) | Juho Timonen","datePublished": "2021-11-29T03:01:05+02:00",
+    "dateModified": "2021-11-29T03:01:05+02:00",
+    "wordCount":  817 ,
+    "publisher": {
+        "@type": "Person",
+        "name": "C. Wang",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "/images/icon.png"
+        }
+        },
+    "description": "Overview of the different libraries related to Stan and their organization, and finding and entry point to the internal C\u002b\u002b code."
+}
+</script><meta property="og:title" content="Understanding the Stan codebase (Part 1) | Juho Timonen" />
+<meta property="og:type" content="article" />
+
+
+<meta property="og:image" content="/images/icon.png">
+
+
+<meta property="og:url" content="/posts/post-01/" />
+
+
+
+<meta property="og:description" content="Overview of the different libraries related to Stan and their organization, and finding and entry point to the internal C&#43;&#43; code." />
+
+
+
+<meta property="og:locale" content="en" />
+
+
+
+
+<meta property="og:site_name" content="Juho Timonen" />
+
+
+
+
+
+
+<meta property="article:published_time" content="2021-11-29T03:01:05&#43;02:00" />
+
+
+<meta property="article:modified_time" content="2021-11-29T03:01:05&#43;02:00" />
+
+
+
+<meta property="article:section" content="posts" />
+
+
+
+
+
+
+
+
+
+
+
+
+<body class="flex flex-col min-h-screen">
+  <header class="fixed flex items-center w-full min-h-16 pl-scrollbar z-50 bg-secondary-bg shadow-sm">
+    <div class="w-full max-w-screen-xl mx-auto"><script>
+    let storageColorScheme = localStorage.getItem("lightDarkMode")
+    if ((storageColorScheme == 'Auto' && window.matchMedia("(prefers-color-scheme: dark)").matches) || storageColorScheme == "Dark") {
+        document.getElementsByTagName('html')[0].classList.add('dark')
+    }
+</script>
+<nav class="flex items-center justify-between flex-wrap px-4 py-4 md:py-0">
+    <a href="/" class="mr-6 text-primary-text text-xl font-bold">Juho Timonen</a>
+    <button id="navbar-btn" class="md:hidden flex items-center px-3 py-2" aria-label="Open Navbar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div id="target"
+        class="hidden block md:flex md:flex-grow md:justify-between md:items-center w-full md:w-auto text-primary-text z-20">
+        <div class="md:flex md:h-16 text-sm md:flex-grow pb-4 md:pb-0 border-b md:border-b-0">
+            <a href="/#about" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  border-transparent  mr-4">About</a>
+            <a href="/posts/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  selected-menu-item  mr-4">Posts</a>
+            <a href="/docs/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  border-transparent  mr-4">Publications</a>
+        </div>
+
+        <div class="flex">
+            <div class="relative pt-4 md:pt-0">
+                <div class="cursor-pointer hover:text-eureka" id="lightDarkMode">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-30" id="is-open">
+                </div>
+                <div class="absolute flex flex-col left-0 md:left-auto right-auto md:right-0 hidden bg-secondary-bg w-48 rounded py-2 border border-tertiary-bg cursor-pointer z-40"
+                    id='lightDarkOptions'>
+                    <span class="px-4 py-1 hover:text-eureka" name="Light">Light</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Dark">Dark</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Auto">Auto</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-0" id="is-open-mobile">
+    </div>
+
+</nav>
+<script>
+    
+    let element = document.getElementById('lightDarkMode')
+    if (storageColorScheme == 'Auto') {
+        element.firstElementChild.classList.remove('fa-sun')
+        element.firstElementChild.setAttribute("data-icon", 'adjust')
+        element.firstElementChild.classList.add('fa-adjust')
+        document.addEventListener('DOMContentLoaded', () => {
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', switchDarkMode)
+        })
+    } else if (storageColorScheme == "Dark") {
+        element.firstElementChild.classList.remove('fa-sun')
+        element.firstElementChild.setAttribute("data-icon", 'moon')
+        element.firstElementChild.classList.add('fa-moon')
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        getcolorscheme();
+        switchBurger();
+    });
+</script>
+</div>
+  </header>
+  <main class="flex-grow pt-16">
+    <div class="pl-scrollbar">
+      <div class="w-full max-w-screen-xl lg:px-4 xl:px-8 mx-auto">
+
+
+<div class="grid grid-cols-2 lg:grid-cols-8 gap-4 lg:pt-12">
+    <div
+        class="col-span-2  lg:col-span-6 bg-secondary-bg rounded px-6 py-8">
+        <h1 class="font-bold text-3xl text-primary-text">Understanding the Stan codebase (Part 1)</h1>
+        <div class="flex flex-wrap flex-row items-center mt-2 text-tertiary-text">
+    <div class="mr-6 my-2">
+        <i class="fas fa-calendar mr-1"></i>
+        <span>2021-11-29</span>
+    </div>
+    <div class="mr-6 my-2">
+        <i class="fas fa-clock mr-1"></i>
+        <span>4 min read</span>
+    </div>
+    
+    
+
+    
+    <div class="mr-6 my-2">
+        <i class="fas fa-th-list mr-1"></i>
+        
+        <a href="/series/stan-c&#43;&#43;/" class="hover:text-eureka">Stan C&#43;&#43;</a>
+        
+    </div>
+    
+</div>
+        
+        
+        
+
+        <div class="content">
+            <h2 id="introduction">Introduction</h2>
+<p>So, you have your Stan model written and are doing inference for it, but something weird is happening? Or maybe you want to extend Stan but don&rsquo;t know where to start because the source code repositories look daunting. These are some of the possible reasons why someone might want to study the internals of Stan, and what is actually happening under the hood. I have for various reasons for a long time wanted to just see what is happening line-by-line. In this post this is just what I will do.</p>
+<h3 id="code-organization">Code organization</h3>
+<img src="/images/post-01/stan-structure.png" alt="Stan Organization" width=560>
+<p>Relationships between diffent libraries and interfaces related to Stan are visualized in the above diagram. The C++ core that we study in this post is organized in three repos.</p>
+<ul>
+<li><a href="https://github.com/stan-dev/cmdstan">CmdStan</a>: A command line interface to Stan</li>
+<li><a href="https://github.com/stan-dev/stan">Stan</a>: The MCMC and optimization algorithms</li>
+<li><a href="https://github.com/stan-dev/math">Stan Math</a>: Mathematical functions and their gradients (automatic differentiation)</li>
+</ul>
+<p>Many higher-level interfaces, like <a href="https://mc-stan.org/cmdstanr/">CmdStanR</a> and <a href="https://github.com/stan-dev/cmdstanpy">CmdStanPy</a>, call CmdStan internally. In this post, we are going to look at how a typical program excecution travels though all the different libraries using CmdStanR as the starting point.</p>
+<h2 id="starting-point">Starting point</h2>
+<p>In the very beginning we have nothing but our Stan code, in a file called <strong>mymodel.stan</strong>. For simplicity, we assume that it doesn&rsquo;t have a data block. Our R code for sampling the model is</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-R" data-lang="R"><span class="nf">library</span><span class="p">(</span><span class="n">cmdstanr</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">&lt;-</span> <span class="nf">cmdstan_model</span><span class="p">(</span><span class="n">stan_file</span> <span class="o">=</span> <span class="s">&#34;mymodel.stan&#34;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">$</span><span class="nf">save_hpp_file</span><span class="p">()</span>
+<span class="n">fit</span> <span class="o">&lt;-</span> <span class="n">model</span><span class="o">$</span><span class="nf">sample</span><span class="p">(</span><span class="n">adapt_delta</span> <span class="o">=</span> <span class="m">0.95</span><span class="p">,</span> <span class="n">init</span> <span class="o">=</span> <span class="m">0</span><span class="p">)</span></code></pre></div>
+<p>The first thing we look at is <code>cmdstan_model(stan_file = &quot;mymodel.stan&quot;)</code>. This does two interesting things.</p>
+<ul>
+<li>Transpiles the Stan model to C++ code using <code>stanc</code>.</li>
+<li>Compiles the C++ code into an executable file <strong>mymodel.exe</strong> (without the <strong>.exe</strong> file suffix on Mac or Linux).</li>
+</ul>
+<p>Here we used <code>model$save_hpp_file()</code> to save the model C++ code into <strong>mymodel.hpp</strong> so that we can look at it later. This is not the only C++ code that has goes into the executable though, as also a lot of CmdStan, Stan, and Stan Math code will be packed into it. The call <code>model$sample(adapt_delta = 0.95, init = 0)</code> calls the executable, and here the equivalent command line call is</p>
+<pre><code>mymodel.exe sample adapt delta=0.95 init=0
+</code></pre>
+<p>Next we wish to find the entry point in the CmdStan code that is started with this call.</p>
+<h2 id="cmdstan">CmdStan</h2>
+<p>Inside the <strong>cmdstan</strong> source code repository, we go to <strong>cmdstan/src/cmdstan</strong>.</p>
+<h3 id="maincpp">main.cpp</h3>
+<p>We find a <a href="https://github.com/stan-dev/cmdstan/blob/develop/src/cmdstan/main.cpp">main.cpp</a>, which looks promising. It actually includes an</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+  <span class="c1">// ...
+</span><span class="c1"></span><span class="p">}</span></code></pre></div>
+<p>function which is the starting point of any C++ program. Based on our command line arguments, at this point <code>argc</code> (number of commmand line arguments) should be 5 and <code>argv</code> should be something like <code>{&quot;mymodel.exe&quot;, &quot;sample&quot;, &quot;adapt&quot;, &quot;delta=0.95&quot;, &quot;init=0&quot;}</code>. We see that <code>main</code> just calls <code>cmdstan::command(argc, argv)</code>, which is defined in <a href="https://github.com/stan-dev/cmdstan/blob/develop/src/cmdstan/command.hpp">command.hpp</a>.</p>
+<h3 id="commandhpp">command.hpp</h3>
+<p>Here, the command line arguments are parsed and several things initialized. Among other things, a model instance is created.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="c1">// Instantiate model
+</span><span class="c1"></span>  <span class="n">stan</span><span class="o">::</span><span class="n">model</span><span class="o">::</span><span class="n">model_base</span> <span class="o">&amp;</span><span class="n">model</span>
+      <span class="o">=</span> <span class="n">new_model</span><span class="p">(</span><span class="o">*</span><span class="n">var_context</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">);</span></code></pre></div>
+<p>We will go to the branch</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">if</span> <span class="p">(</span><span class="n">user_method</span><span class="o">-&gt;</span><span class="n">arg</span><span class="p">(</span><span class="s">&#34;sample&#34;</span><span class="p">))</span> <span class="p">{</span>
+  <span class="c1">// ...
+</span><span class="c1"></span><span class="p">}</span> 
+</code></pre></div>
+<p>because our <code>method</code> argument was <code>sample</code>. Finally, because the default algorithm is NUTS with adaptation engaged and default metric is diagonal (and we haven&rsquo;t supplied the metric), we will execute the branch</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">engine</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#34;nuts&#34;</span> <span class="o">&amp;&amp;</span> <span class="n">metric</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#34;diag_e&#34;</span>
+                 <span class="o">&amp;&amp;</span> <span class="n">adapt_engaged</span> <span class="o">==</span> <span class="nb">true</span> <span class="o">&amp;&amp;</span> <span class="n">metric_supplied</span> <span class="o">==</span> <span class="nb">false</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// ...
+</span><span class="c1"></span>        <span class="n">return_code</span> <span class="o">=</span> <span class="n">stan</span><span class="o">::</span><span class="n">services</span><span class="o">::</span><span class="n">sample</span><span class="o">::</span><span class="n">hmc_nuts_diag_e_adapt</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span> <span class="n">num_chains</span><span class="p">,</span> <span class="n">init_contexts</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">,</span> <span class="n">id</span><span class="p">,</span> <span class="n">init_radius</span><span class="p">,</span>
+            <span class="n">num_warmup</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_thin</span><span class="p">,</span> <span class="n">save_warmup</span><span class="p">,</span> <span class="n">refresh</span><span class="p">,</span> <span class="n">stepsize</span><span class="p">,</span>
+            <span class="n">stepsize_jitter</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">gamma</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">init_buffer</span><span class="p">,</span>
+            <span class="n">term_buffer</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">interrupt</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">init_writers</span><span class="p">,</span>
+            <span class="n">sample_writers</span><span class="p">,</span> <span class="n">diagnostic_writers</span><span class="p">);</span>
+      <span class="p">}</span></code></pre></div>
+<p>This means that we call an algorithm from Stan, hooray. We will therefore now jump to the Stan repository.</p>
+<h2 id="stan">Stan</h2>
+<p>Inside the <strong>stan</strong> source code repository, we go to <strong>stan/src/stan</strong>.</p>
+<h3 id="hmc_nuts_diag_e_adapthpp">hmc_nuts_diag_e_adapt.hpp</h3>
+<p>In <strong>services/sample</strong> we find <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/services/sample/hmc_nuts_diag_e_adapt.hpp">hmc_nuts_diag_e_adapt.hpp</a> which contains
+the function that we called from CmdStan. There we have</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">cont_vector</span> <span class="o">=</span> <span class="n">util</span><span class="o">::</span><span class="n">initialize</span><span class="p">(</span>
+      <span class="n">model</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">init_radius</span><span class="p">,</span> <span class="nb">true</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">init_writer</span><span class="p">);</span></code></pre></div>
+<p>where the parameter values are initialized. By default this would try at most 100 random initial points, until it finds a point where log probability and its gradient can be evaluated successfully. Now as we set <code>init=0</code>, it will just check that it can evaluate them at zero. At the end we find</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">  <span class="n">util</span><span class="o">::</span><span class="n">run_adaptive_sampler</span><span class="p">(</span>
+      <span class="n">sampler</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">cont_vector</span><span class="p">,</span> <span class="n">num_warmup</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_thin</span><span class="p">,</span> <span class="n">refresh</span><span class="p">,</span>
+      <span class="n">save_warmup</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">interrupt</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">sample_writer</span><span class="p">,</span> <span class="n">diagnostic_writer</span><span class="p">);</span></code></pre></div>
+<p>which we will look at next.</p>
+<h3 id="run_adaptive_samplerhpp">run_adaptive_sampler.hpp</h3>
+<p>So we are now at <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/services/util/run_adaptive_sampler.hpp">run_adaptive_sampler.hpp</a> which is in <strong>services/util</strong>. There we have three interesting parts.</p>
+<ul>
+<li>
+<ol>
+<li>Initializing stepsize</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>Generating transitions, adaptation engaged (warmup)</li>
+</ol>
+</li>
+<li>
+<ol start="3">
+<li>Generating transitions, adaptation disengaged (sampling)</li>
+</ol>
+</li>
+</ul>
+<p>The part
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">sampler</span><span class="p">.</span><span class="n">init_stepsize</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span></code></pre></div>
+initializes the stepsize and is defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/hmc/base_hmc.hpp">mcmc/hmc/base_hmc.hpp</a>. This already involves a bit of Hamiltonian computations and evolving the Leapfrog integrator. We might look at this part in more detail in a future post. After this, the only thing that remains is to generate the MCMC transitions using the sampler. This is done in two phases with calls to
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">  <span class="n">util</span><span class="o">::</span><span class="n">generate_transitions</span><span class="p">();</span></code></pre></div>
+and in the first one we have adaptation engaged. We will look at <code>generate_transitions()</code> in the next blog post.</p>
+
+        </div>
+        
+        
+        
+
+
+        
+        
+        
+        
+        
+
+
+
+    </div>
+    
+    <div class="col-span-2">
+        
+        
+<div class="bg-secondary-bg rounded p-6">
+    <h3 class="text-lg font-semibold mb-4">Series of Posts</h3>
+    <div class="content">
+        
+        
+        <a href="/posts/post-01/">Understanding the Stan codebase (Part 1)</a>
+        <br />
+        
+        
+    </div>
+</div>
+        
+        
+        <div class="sticky top-16 z-10 hidden lg:block px-6 py-4  bg-primary-bg ">
+    <span class="text-lg font-semibold">On This Page</span>
+</div>
+<div class="sticky-toc hidden lg:block px-6 pb-6 ">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a>
+      <ul>
+        <li><a href="#code-organization">Code organization</a></li>
+      </ul>
+    </li>
+    <li><a href="#starting-point">Starting point</a></li>
+    <li><a href="#cmdstan">CmdStan</a>
+      <ul>
+        <li><a href="#maincpp">main.cpp</a></li>
+        <li><a href="#commandhpp">command.hpp</a></li>
+      </ul>
+    </li>
+    <li><a href="#stan">Stan</a>
+      <ul>
+        <li><a href="#hmc_nuts_diag_e_adapthpp">hmc_nuts_diag_e_adapt.hpp</a></li>
+        <li><a href="#run_adaptive_samplerhpp">run_adaptive_sampler.hpp</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+</div>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        enableStickyToc();
+    });
+</script>
+        
+    </div>
+    
+
+    
+    
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+        hljs.initHighlightingOnLoad();
+    })
+</script>
+
+      </div>
+    </div>
+    
+  </main>
+  <footer class="pl-scrollbar">
+    <div class="w-full max-w-screen-xl mx-auto"><div class="text-center p-6 pin-b">
+    <p class="text-sm text-tertiary-text">&copy; 2021 Juho Timonen
+ &middot;  Powered by the <a href="https://github.com/wangchucheng/hugo-eureka" class="hover:text-eureka">Eureka</a> theme for <a href="https://gohugo.io" class="hover:text-eureka">Hugo</a></p>
+</div></div>
+  </footer>
+</body>
+
+</html>
