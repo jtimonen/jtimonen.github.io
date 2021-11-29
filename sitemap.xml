@@ -35,12 +35,6 @@
     <loc>/tags/</loc>
     <lastmod>2021-11-03T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>/posts/first-post/</loc>
-    <lastmod>2021-10-26T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/posts/</loc>
-    <lastmod>2021-10-26T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>/tags/gaussian-processes/</loc>
     <lastmod>2021-01-21T00:00:00+00:00</lastmod>
   </url><url>
@@ -53,6 +47,8 @@
     <loc>/authors/</loc>
   </url><url>
     <loc>/categories/</loc>
+  </url><url>
+    <loc>/posts/</loc>
   </url><url>
     <loc>/series/</loc>
   </url>
