@@ -91,9 +91,9 @@
         "@type": "WebPage",
         "@id": "/posts/post-01/"
     },
-    "headline": "Understanding the Stan codebase (Part 1) | Juho Timonen","datePublished": "2021-11-29T03:01:05+02:00",
-    "dateModified": "2021-12-01T06:27:27+02:00",
-    "wordCount":  1587 ,
+    "headline": "Understanding the Stan codebase (Part 1) | Juho Timonen","datePublished": "2021-11-29T09:00:00+02:00",
+    "dateModified": "2021-12-01T09:02:05+02:00",
+    "wordCount":  1583 ,
     "publisher": {
         "@type": "Person",
         "name": "C. Wang",
@@ -131,10 +131,10 @@
 
 
 
-<meta property="article:published_time" content="2021-11-29T03:01:05&#43;02:00" />
+<meta property="article:published_time" content="2021-11-29T09:00:00&#43;02:00" />
 
 
-<meta property="article:modified_time" content="2021-12-01T06:27:27&#43;02:00" />
+<meta property="article:modified_time" content="2021-12-01T09:02:05&#43;02:00" />
 
 
 
@@ -253,18 +253,18 @@
 
         <div class="content">
             <h2 id="introduction">Introduction</h2>
-<p>So, you have your <a href="https://mc-stan.org/">Stan</a> model written and are doing inference for it, but something weird is happening? Or maybe you want to extend Stan but don&rsquo;t know where to start because the source code repositories look daunting. These are some of the possible reasons why someone might want to study the internals of Stan, and what is actually happening under the hood. I have for various reasons for a long time wanted to just see what is happening line-by-line. In this post, I am going to look at how a typical program execution starts to travel through all the different libraries related to Stan, using CmdStanR as the starting point.</p>
+<p>So, you have your <a href="https://mc-stan.org/">Stan</a> model written and are doing inference for it, but something weird is happening? Or maybe you want to extend Stan but don&rsquo;t know where to start because the source code repositories look daunting. These are some of the possible reasons why someone might want to study the internals of Stan, and what is happening under the hood. I have for various reasons for a long time wanted to just see what is happening line-by-line. In this post, I am going to look at how a typical program execution starts to travel through all the different libraries related to Stan, using CmdStanR as the starting point.</p>
 <h3 id="code-organization">Code organization</h3>
 <img src="/images/post-01/stan-structure.png" alt="Stan Organization" width=560>
-<p>Relationships between diffent libraries and various interfaces related to Stan are visualized in the above diagram. The C++ core that we study in this post is organized in three parts.</p>
+<p>Relationships between different libraries and various interfaces related to Stan are visualized in the above diagram. The C++ core that we study in this post is organized into three parts.</p>
 <ul>
-<li><a href="https://github.com/stan-dev/cmdstan">CmdStan</a>: A command line interface to Stan</li>
+<li><a href="https://github.com/stan-dev/cmdstan">CmdStan</a>: A command-line interface to Stan</li>
 <li><a href="https://github.com/stan-dev/stan">Stan</a>: The MCMC and optimization algorithms</li>
 <li><a href="https://github.com/stan-dev/math">Stan Math</a>: Mathematical functions and their gradients (automatic differentiation)</li>
 </ul>
-<p>Many higher-level interfaces, like <a href="https://mc-stan.org/cmdstanr/">CmdStanR</a> and <a href="https://github.com/stan-dev/cmdstanpy">CmdStanPy</a>, call CmdStan internally. <a href="https://mc-stan.org/users/interfaces/rstan">RStan</a> and <a href="https://pystan.readthedocs.io/en/latest/">PyStan</a> employ different strategies that do not rely on CmdStan. A benefit of CmdStan is that it is always released simultaneously with Stan with the same version number, which means that CmdStan is always up to date. In this post we study the most recent Stan version 2.28.2, and if the source code structure doesn&rsquo;t experience dramatic changes in the near future, this post might stay relevant for future versions too.</p>
+<p>Many higher-level interfaces, like <a href="https://mc-stan.org/cmdstanr/">CmdStanR</a> and <a href="https://github.com/stan-dev/cmdstanpy">CmdStanPy</a>, call CmdStan internally. <a href="https://mc-stan.org/users/interfaces/rstan">RStan</a> and <a href="https://pystan.readthedocs.io/en/latest/">PyStan</a> employ different strategies that do not rely on CmdStan. A benefit of CmdStan is that it is always released simultaneously with Stan with the same version number, which means that CmdStan is always up to date. In this, post we study the most recent Stan version 2.28.2, and if the source code structure doesn&rsquo;t experience dramatic changes in the near future, this post might stay relevant for future versions too.</p>
 <h2 id="starting-point-cmdstanr">Starting point (CmdStanR)</h2>
-<p>In the very beginning we have nothing but our Stan code, in a file called <strong>mymodel.stan</strong>. For simplicity, we assume that it doesn&rsquo;t have a data block, but otherwise we are not interested in what the model actually is like. We investigate what happens when we run the following R code:</p>
+<p>In the very beginning, we have nothing but our Stan code, in a file called <strong>mymodel.stan</strong>. For simplicity, we assume that it doesn&rsquo;t have a data block, but otherwise we are not interested in what the model actually is like. We investigate what happens when we run the following R code:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-R" data-lang="R"><span class="nf">library</span><span class="p">(</span><span class="n">cmdstanr</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">&lt;-</span> <span class="nf">cmdstan_model</span><span class="p">(</span><span class="n">stan_file</span> <span class="o">=</span> <span class="s">&#34;mymodel.stan&#34;</span><span class="p">)</span>
 <span class="n">fit</span> <span class="o">&lt;-</span> <span class="n">model</span><span class="o">$</span><span class="nf">sample</span><span class="p">(</span><span class="n">adapt_delta</span> <span class="o">=</span> <span class="m">0.95</span><span class="p">,</span> <span class="n">refresh</span> <span class="o">=</span> <span class="m">100</span><span class="p">)</span></code></pre></div>
@@ -276,11 +276,11 @@
 </ul>
 <p>We could have used <code>model$save_hpp_file()</code> to save the model C++ code into <strong>mymodel.hpp</strong> if we wanted to look at that. However, we are now interested in the C++ code that doesn&rsquo;t depend on the model. I would imagine that also a lot of this model-independent code has to go into the executable.</p>
 <h3 id="running-the-executable">Running the executable</h3>
-<p>The call <code>model$sample(adapt_delta = 0.95, refresh = 100)</code> <a href="https://github.com/stan-dev/cmdstanr/blob/master/R/run.R">creates four processes</a> (because default number of chains is four) that each run the executable. For example, the first process creates the command line call</p>
+<p>The call <code>model$sample(adapt_delta = 0.95, refresh = 100)</code> <a href="https://github.com/stan-dev/cmdstanr/blob/master/R/run.R">creates four processes</a> (because the default number of chains is four) that each run the executable. For example, the first process creates the command-line call</p>
 <pre><code>mymodel.exe id=1 random seed=660816326 output file=&lt;opath&gt;.csv refresh=100 profile_file=&lt;ppath&gt;.csv method=sample save_warmup=0 algorithm=hmc engine=nuts adapt delta=0.95 engaged=1
 </code></pre>
-<p>where <code>&lt;opath&gt;</code> and <code>&lt;ppath&gt;</code> are paths to some temporary CSV files on the computer. Arguments <code>delta=0.95</code> and <code>refresh=100</code> are things that we specified and others are defaults created by CmdStanR. You can find explanations for the command line arguments in the <a href="https://mc-stan.org/docs/2_28/cmdstan-guide/command-line-interface-overview.html">CmdStan User&rsquo;s Guide</a>.</p>
-<p>For other processes the <code>id</code> argument is 2, 3, and 4. From now on we study only one chain (the one with <code>id=1</code>) and next try to find the entry point in the CmdStan code that is started with the above command line instruction.</p>
+<p>where <code>&lt;opath&gt;</code> and <code>&lt;ppath&gt;</code> are paths to some temporary CSV files on the computer. Arguments <code>delta=0.95</code> and <code>refresh=100</code> are things that we specified and others are defaults created by CmdStanR. You can find explanations for the command-line arguments in the <a href="https://mc-stan.org/docs/2_28/cmdstan-guide/command-line-interface-overview.html">CmdStan User&rsquo;s Guide</a>.</p>
+<p>For other processes the <code>id</code> argument is 2, 3, and 4. From now on we study only one chain (the one with <code>id=1</code>) and next try to find the entry point in the CmdStan code that is started with the above command-line instruction.</p>
 <h2 id="cmdstan">CmdStan</h2>
 <p>Inside the <strong>cmdstan</strong> source code repository, we go to <strong>cmdstan/src/cmdstan</strong>.</p>
 <h3 id="maincpp">main.cpp</h3>
@@ -288,7 +288,7 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
   <span class="c1">// ...
 </span><span class="c1"></span><span class="p">}</span></code></pre></div>
-<p>function which is the starting point of any C++ program. Based on our command line arguments, at this point <code>argc</code> (number of commmand line arguments) should be 15, <code>argv[0]</code> should be <code>&quot;mymodel.exe&quot;</code>, <code>argv[1]</code> should be <code>&quot;id=1&quot;</code> and so on. We see that <code>main</code> just calls <code>cmdstan::command(argc, argv)</code>, which is defined in <a href="https://github.com/stan-dev/cmdstan/blob/develop/src/cmdstan/command.hpp">command.hpp</a>.</p>
+<p>function which is the starting point of any C++ program. Based on our command-line arguments, at this point <code>argc</code> (number of commmand line arguments) should be 15, <code>argv[0]</code> should be <code>&quot;mymodel.exe&quot;</code>, <code>argv[1]</code> should be <code>&quot;id=1&quot;</code> and so on. We see that <code>main</code> just calls <code>cmdstan::command(argc, argv)</code>, which is defined in <a href="https://github.com/stan-dev/cmdstan/blob/develop/src/cmdstan/command.hpp">command.hpp</a>.</p>
 <h3 id="commandhpp">command.hpp</h3>
 <p>Inside the <code>command()</code> function is a huge if-else parade which is quite difficult to read. So here is a high-level summary of the control flow
 inside it.</p>
@@ -386,14 +386,14 @@ inside it.</p>
   <span class="c1">// ...
 </span><span class="c1"></span>  <span class="k">return</span> <span class="n">return_code</span><span class="p">;</span>
 <span class="p">}</span></code></pre></div>
-<p>In most of the branches, the left-out part <code>// ...</code> ends up calling something from <code>stan::services</code>. This is also the case in our example, and because our <code>method</code> argument is <code>sample</code>, default algorithm is NUTS with adaptation engaged and default metric is diagonal (and we haven&rsquo;t supplied the metric), we will call <code>stan::services::sample::hmc_nuts_diag_e_adapt()</code>. We will therefore now jump from CmdStan to Stan. Hooray!</p>
+<p>In most of the branches, the left-out part <code>// ...</code> ends up calling something from <code>stan::services</code>. This is also the case in our example, and because our <code>method</code> argument is <code>sample</code>,the default algorithm is NUTS with adaptation engaged and the default metric is diagonal (and we haven&rsquo;t supplied the metric), we will call <code>stan::services::sample::hmc_nuts_diag_e_adapt()</code>. We will therefore now jump from CmdStan to Stan. Hooray!</p>
 <h2 id="stan">Stan</h2>
 <p>Inside the <strong>stan</strong> source code repository, we go to <strong>stan/src/stan</strong>.</p>
 <h3 id="hmc_nuts_diag_e_adapthpp">hmc_nuts_diag_e_adapt.hpp</h3>
 <p>In <strong>services/sample</strong> we find <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/services/sample/hmc_nuts_diag_e_adapt.hpp">hmc_nuts_diag_e_adapt.hpp</a> which contains the function that we called from CmdStan. But wait, it is actually overloaded with four different versions of it with the same name. Not to mention each of these are templated. We will not stop here to think much about why these all versions of <code>hmc_nuts_diag_e_adapt()</code> are needed. A very valid print debugging approach reveals that in our case, we call the fourth one, which calls the second one, which then calls the first one. There we have</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">cont_vector</span> <span class="o">=</span> <span class="n">util</span><span class="o">::</span><span class="n">initialize</span><span class="p">(</span>
       <span class="n">model</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">init_radius</span><span class="p">,</span> <span class="nb">true</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">init_writer</span><span class="p">);</span></code></pre></div>
-<p>where the parameter values are initialized. In <code>initialize()</code>, which is defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/services/util/initialize.hpp">initialize.hpp</a>, we try most 100 random initial points, until a point where log probability and its gradient can be evaluated successfully. In our case the first try is successfull. Therefore we can now think that we exist somewhere in the (unconstrained) parameter space, at a point stored in <code>cont_vector</code>. The next step is to call</p>
+<p>where the parameter values are initialized. In <code>initialize()</code>, which is defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/services/util/initialize.hpp">initialize.hpp</a>, we try most 100 random initial points, until a point where log probability and its gradient can be evaluated successfully. In our case the first try is successful. Therefore we can now think that we exist somewhere in the (unconstrained) parameter space, at a point stored in <code>cont_vector</code>. The next step is to call</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">  <span class="n">util</span><span class="o">::</span><span class="n">run_adaptive_sampler</span><span class="p">(</span>
       <span class="n">sampler</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">cont_vector</span><span class="p">,</span> <span class="n">num_warmup</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">num_thin</span><span class="p">,</span> <span class="n">refresh</span><span class="p">,</span>
       <span class="n">save_warmup</span><span class="p">,</span> <span class="n">rng</span><span class="p">,</span> <span class="n">interrupt</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">sample_writer</span><span class="p">,</span> <span class="n">diagnostic_writer</span><span class="p">);</span></code></pre></div>
