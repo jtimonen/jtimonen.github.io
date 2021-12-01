@@ -3,61 +3,61 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>/docs/pub_03/</loc>
-    <lastmod>2021-11-03T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
     <priority>0.8</priority>
   </url><url>
     <loc>/docs/pub_02/</loc>
-    <lastmod>2021-01-21T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
     <priority>0.8</priority>
   </url><url>
     <loc>/docs/pub_01/</loc>
-    <lastmod>2018-04-10T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
     <priority>0.8</priority>
   </url><url>
     <loc>/</loc>
-    <lastmod>2021-11-29T03:01:05+02:00</lastmod>
-  </url><url>
-    <loc>/posts/</loc>
-    <lastmod>2021-11-29T03:01:05+02:00</lastmod>
+    <lastmod>2021-12-01T06:27:27+02:00</lastmod>
   </url><url>
     <loc>/series/</loc>
-    <lastmod>2021-11-29T03:01:05+02:00</lastmod>
+    <lastmod>2021-12-01T06:27:27+02:00</lastmod>
   </url><url>
     <loc>/series/stan-c&#43;&#43;/</loc>
-    <lastmod>2021-11-29T03:01:05+02:00</lastmod>
+    <lastmod>2021-12-01T06:27:27+02:00</lastmod>
   </url><url>
     <loc>/posts/post-01/</loc>
-    <lastmod>2021-11-29T03:01:05+02:00</lastmod>
+    <lastmod>2021-12-01T06:27:27+02:00</lastmod>
   </url><url>
     <loc>/tags/bayesian-methods/</loc>
-    <lastmod>2021-11-03T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
   </url><url>
     <loc>/tags/bioinformatics/</loc>
-    <lastmod>2021-11-03T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
   </url><url>
     <loc>/tags/molecular-networks/</loc>
-    <lastmod>2021-11-03T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
   </url><url>
     <loc>/tags/odes/</loc>
-    <lastmod>2021-11-03T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/docs/</loc>
-    <lastmod>2021-11-03T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
   </url><url>
     <loc>/tags/</loc>
-    <lastmod>2021-11-03T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
   </url><url>
     <loc>/tags/gaussian-processes/</loc>
-    <lastmod>2021-01-21T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
   </url><url>
     <loc>/tags/r/</loc>
-    <lastmod>2021-01-21T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
   </url><url>
     <loc>/tags/stan/</loc>
-    <lastmod>2021-01-21T00:00:00+00:00</lastmod>
+    <lastmod>2021-11-09T23:45:25+02:00</lastmod>
   </url><url>
     <loc>/authors/</loc>
   </url><url>
     <loc>/categories/</loc>
+  </url><url>
+    <loc>/posts/</loc>
+    <lastmod>2021-11-29T10:37:01+02:00</lastmod>
+  </url><url>
+    <loc>/docs/</loc>
+    <lastmod>2021-10-26T16:31:08+03:00</lastmod>
   </url>
 </urlset>
