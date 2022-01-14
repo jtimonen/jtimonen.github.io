@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang='en' ><meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+
+
+<title>Understanding the Stan codebase - Part 2: Samplers | Juho Timonen</title>
+
+<meta name="generator" content="Hugo Eureka 0.8.3" />
+<link rel="stylesheet" href="/css/eureka.min.css">
+<script defer src="/js/eureka.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload"
+  href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+  as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/styles/solarized-light.min.css"
+   media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/highlight.min.js"
+   crossorigin></script>
+
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/languages/dart.min.js"
+     crossorigin></script>
+
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/languages/cpp.min.js"
+     crossorigin></script>
+
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/languages/r.min.js"
+     crossorigin></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/js/all.min.js"
+   integrity="sha256-uNYoXefWRqv&#43;PsIF/OflNmwtKM4lStn9yrz2gVl6ymo="  crossorigin></script>
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css"
+   integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3&#43;Aro6EYUG4&#43;cU&#43;KJWu/X"  media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" 
+  integrity="sha384-g7c&#43;Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI&#43;sEnkvrMWph2EDg4"  crossorigin></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js"
+   integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC&#43;Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa"  crossorigin></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false },
+        { left: "\\[", right: "\\]", display: true }
+      ],
+    });
+  });
+</script>
+
+
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@8.9.2/dist/mermaid.min.js" 
+  integrity="sha256-Zmpaaj&#43;GXFsPF5WdPArSrnW3b30dovldeKsW00xBVwE="  crossorigin></script>
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/images/icon_hu07c85376caca4551e603fa2d74701141_5499_32x32_fill_box_center_3.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/icon_hu07c85376caca4551e603fa2d74701141_5499_180x180_fill_box_center_3.png">
+
+<meta name="description"
+  content="Studying the hierarchy of different sampler classes in Stan.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1 ,
+      "name":"Posts",
+      "item":"/posts/"},{
+      "@type": "ListItem",
+      "position": 2 ,
+      "name":"Understanding the Stan codebase - Part 2: Samplers",
+      "item":"/posts/post-02/"}]
+}
+</script>
+
+
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/posts/post-02/"
+    },
+    "headline": "Understanding the Stan codebase - Part 2: Samplers | Juho Timonen","datePublished": "2022-01-14T06:15:00+02:00",
+    "dateModified": "2022-01-14T06:16:42+02:00",
+    "wordCount":  1693 ,
+    "publisher": {
+        "@type": "Person",
+        "name": "C. Wang",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "/images/icon.png"
+        }
+        },
+    "description": "Studying the hierarchy of different sampler classes in Stan."
+}
+</script><meta property="og:title" content="Understanding the Stan codebase - Part 2: Samplers | Juho Timonen" />
+<meta property="og:type" content="article" />
+
+
+<meta property="og:image" content="/images/icon.png">
+
+
+<meta property="og:url" content="/posts/post-02/" />
+
+
+
+<meta property="og:description" content="Studying the hierarchy of different sampler classes in Stan." />
+
+
+
+<meta property="og:locale" content="en" />
+
+
+
+
+<meta property="og:site_name" content="Juho Timonen" />
+
+
+
+
+
+
+<meta property="article:published_time" content="2022-01-14T06:15:00&#43;02:00" />
+
+
+<meta property="article:modified_time" content="2022-01-14T06:16:42&#43;02:00" />
+
+
+
+<meta property="article:section" content="posts" />
+
+
+
+
+
+
+
+
+
+
+<meta property="og:see_also" content="/posts/post-01/" />
+
+
+
+
+
+<body class="flex flex-col min-h-screen">
+  <header class="fixed flex items-center w-full min-h-16 pl-scrollbar z-50 bg-secondary-bg shadow-sm">
+    <div class="w-full max-w-screen-xl mx-auto"><script>
+    let storageColorScheme = localStorage.getItem("lightDarkMode")
+    if ((storageColorScheme == 'Auto' && window.matchMedia("(prefers-color-scheme: dark)").matches) || storageColorScheme == "Dark") {
+        document.getElementsByTagName('html')[0].classList.add('dark')
+    }
+</script>
+<nav class="flex items-center justify-between flex-wrap px-4 py-4 md:py-0">
+    <a href="/" class="mr-6 text-primary-text text-xl font-bold">Juho Timonen</a>
+    <button id="navbar-btn" class="md:hidden flex items-center px-3 py-2" aria-label="Open Navbar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div id="target"
+        class="hidden block md:flex md:flex-grow md:justify-between md:items-center w-full md:w-auto text-primary-text z-20">
+        <div class="md:flex md:h-16 text-sm md:flex-grow pb-4 md:pb-0 border-b md:border-b-0">
+            <a href="/#about" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  border-transparent  mr-4">About</a>
+            <a href="/posts/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  selected-menu-item  mr-4">Posts</a>
+            <a href="/docs/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  border-transparent  mr-4">Publications</a>
+        </div>
+
+        <div class="flex">
+            <div class="relative pt-4 md:pt-0">
+                <div class="cursor-pointer hover:text-eureka" id="lightDarkMode">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-30" id="is-open">
+                </div>
+                <div class="absolute flex flex-col left-0 md:left-auto right-auto md:right-0 hidden bg-secondary-bg w-48 rounded py-2 border border-tertiary-bg cursor-pointer z-40"
+                    id='lightDarkOptions'>
+                    <span class="px-4 py-1 hover:text-eureka" name="Light">Light</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Dark">Dark</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Auto">Auto</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-0" id="is-open-mobile">
+    </div>
+
+</nav>
+<script>
+    
+    let element = document.getElementById('lightDarkMode')
+    if (storageColorScheme == 'Auto') {
+        element.firstElementChild.classList.remove('fa-sun')
+        element.firstElementChild.setAttribute("data-icon", 'adjust')
+        element.firstElementChild.classList.add('fa-adjust')
+        document.addEventListener('DOMContentLoaded', () => {
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', switchDarkMode)
+        })
+    } else if (storageColorScheme == "Dark") {
+        element.firstElementChild.classList.remove('fa-sun')
+        element.firstElementChild.setAttribute("data-icon", 'moon')
+        element.firstElementChild.classList.add('fa-moon')
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        getcolorscheme();
+        switchBurger();
+    });
+</script>
+</div>
+  </header>
+  <main class="flex-grow pt-16">
+    <div class="pl-scrollbar">
+      <div class="w-full max-w-screen-xl lg:px-4 xl:px-8 mx-auto">
+
+
+<div class="grid grid-cols-2 lg:grid-cols-8 gap-4 lg:pt-12">
+    <div
+        class="col-span-2  lg:col-span-6 bg-secondary-bg rounded px-6 py-8">
+        <h1 class="font-bold text-3xl text-primary-text">Understanding the Stan codebase - Part 2: Samplers</h1>
+        <div class="flex flex-wrap flex-row items-center mt-2 text-tertiary-text">
+    <div class="mr-6 my-2">
+        <i class="fas fa-calendar mr-1"></i>
+        <span>2022-01-14</span>
+    </div>
+    <div class="mr-6 my-2">
+        <i class="fas fa-clock mr-1"></i>
+        <span>8 min read</span>
+    </div>
+    
+    
+
+    
+    <div class="mr-6 my-2">
+        <i class="fas fa-th-list mr-1"></i>
+        
+        <a href="/series/stan-c&#43;&#43;/" class="hover:text-eureka">Stan C&#43;&#43;</a>
+        
+    </div>
+    
+</div>
+        
+        
+        
+
+        <div class="content">
+            <h2 id="introduction">Introduction</h2>
+<h3 id="recap-of-part-1">Recap of Part 1</h3>
+<p>We pick up from where we left off in <a href="https://jtimonen.github.io/posts/post-01/">Part 1</a>. We found out that <a href="https://github.com/stan-dev/cmdstan">CmdStan</a> calls the <a href="https://github.com/stan-dev/stan">Stan</a> services in <code>cmdstan::command()</code>. For example with the command-line call</p>
+<pre><code>mymodel.exe id=1 method=sample algorithm=hmc engine=nuts adapt engaged=1
+</code></pre>
+<ol>
+<li>the called service is <code>stan::services::sample::hmc_nuts_diag_e_adapt()</code></li>
+<li>which then calls <code>stan::services::util::run_adaptive_sampler()</code></li>
+<li>which calls <code>stan::services::util::generate_transitions()</code>.</li>
+</ol>
+<p><em>Note:</em> All code pieces shown from now on in this post are adapted from <a href="https://github.com/stan-dev/stan,">https://github.com/stan-dev/stan,</a> licenced under the new BSD licence. Comments starting with <code>...</code> indicate parts of source code that have been left out from original source code. During writing of this post, the most recent Stan version is 2.28.2. The hyperlinks to source code cannot be guaranteed to work in the future, if
+the source repo organization is changed or files are renamed.</p>
+<h3 id="starting-point-for-part-2">Starting point for Part 2</h3>
+<p>We find <code>generate_transitions()</code> in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/services/util/generate_transitions.hpp">generate_transitions.hpp</a>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">void</span> <span class="nf">generate_transitions</span><span class="p">(</span><span class="n">stan</span><span class="o">::</span><span class="n">mcmc</span><span class="o">::</span><span class="n">base_mcmc</span><span class="o">&amp;</span> <span class="n">sampler</span><span class="p">,</span> <span class="kt">int</span> <span class="n">num_iterations</span><span class="p">,</span>
+                          <span class="p">...,</span> <span class="n">stan</span><span class="o">::</span><span class="n">mcmc</span><span class="o">::</span><span class="n">sample</span><span class="o">&amp;</span> <span class="n">init_s</span><span class="p">,</span> <span class="n">Model</span><span class="o">&amp;</span> <span class="n">model</span><span class="p">,</span> <span class="p">...)</span> <span class="p">{</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">m</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="n">num_iterations</span><span class="p">;</span> <span class="o">++</span><span class="n">m</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// ... callbacks and progress printing
+</span><span class="c1"></span>    <span class="n">init_s</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">.</span><span class="n">transition</span><span class="p">(</span><span class="n">init_s</span><span class="p">,</span> <span class="n">logger</span><span class="p">);</span>
+    <span class="c1">// ... writing to output
+</span><span class="c1"></span>  <span class="p">}</span>
+<span class="p">}</span></code></pre></div>
+<p>Among other things, it takes as input the sampler, model, and initial point in parameter space. The function is basically just a loop that calls <code>sampler.transition()</code> repeatedly for <code>num_iterations</code> times. Therefore all interesting algorithmic code and
+properties that define how sampling works, whether adaptation is performed etc, have to be included as part of <code>sampler</code>.</p>
+<p>This is why we now jump from the <code>stan::services</code> namespace to <a href="https://github.com/stan-dev/stan/tree/develop/src/stan/mcmc"><code>stan::mcmc</code></a>, where the different samplers and their transitions are defined.</p>
+<h2 id="samplers">Samplers</h2>
+<p>We see in <code>generate_transitions()</code> that <code>sampler</code> has to have type <code>base_mcmc</code>. However, in <code>stan::services::sample::hmc_nuts_diag_e_adapt()</code>, our <code>sampler</code> was declared as
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">stan</span><span class="o">::</span><span class="n">mcmc</span><span class="o">::</span><span class="n">adapt_diag_e_nuts</span><span class="o">&lt;</span><span class="n">Model</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">ecuyer1988</span><span class="o">&gt;</span> <span class="n">sampler</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">rng</span><span class="p">);</span></code></pre></div>
+so what is going on?</p>
+<center><img src="/images/post-02/sampler_class_inheritance.png" alt="Sampler Classes" width=790></center>
+<p>It appears that <code>adapt_diag_e_nuts</code> is a (templated) class that <a href="https://en.cppreference.com/w/cpp/language/derived_class"><em>derives</em></a> from <code>base_mcmc</code> through multiple levels of inheritance as can be seen from the above diagram.</p>
+<h3 id="base_mcmc">base_mcmc</h3>
+<p>This is just an <a href="https://en.cppreference.com/w/cpp/language/abstract_class"><em>interface</em></a> for all MCMC samplers, as it doesn&rsquo;t contain any function bodies.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">class</span> <span class="nc">base_mcmc</span> <span class="p">{</span>
+ <span class="k">public</span><span class="o">:</span>
+  <span class="n">base_mcmc</span><span class="p">()</span> <span class="p">{}</span>
+
+  <span class="k">virtual</span> <span class="o">~</span><span class="n">base_mcmc</span><span class="p">()</span> <span class="p">{}</span>
+
+  <span class="k">virtual</span> <span class="n">sample</span> <span class="nf">transition</span><span class="p">(</span><span class="n">sample</span><span class="o">&amp;</span> <span class="n">init_sample</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">::</span><span class="n">logger</span><span class="o">&amp;</span> <span class="n">logger</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+  <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">get_sampler_param_names</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">names</span><span class="p">)</span> <span class="p">{}</span>
+
+  <span class="k">virtual</span> <span class="kt">void</span> <span class="nf">get_sampler_params</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">values</span><span class="p">)</span> <span class="p">{}</span>
+
+  <span class="c1">//... other virtual functions without body
+</span><span class="c1"></span>
+<span class="p">};</span></code></pre></div>
+<p>The class member functions are all <em>virtual</em> (except the constructor), meaning that deriving classes can override them. We see that <code>transition()</code> is <em>pure virtual</em> (declared with <code>= 0</code>), meaning that a deriving class <em>must</em> override it in order to be instantiable.</p>
+<h3 id="base_hmc">base_hmc</h3>
+<p>This is a base for all Hamiltonian samplers, and derives from <code>base_mcmc</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Model</span><span class="p">,</span> <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="err">, </span><span class="nc">class</span><span class="o">&gt;</span> <span class="k">class</span> <span class="nc">Hamiltonian</span><span class="p">,</span>
+          <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="o">&gt;</span> <span class="k">class</span> <span class="nc">Integrator</span><span class="p">,</span> <span class="k">class</span> <span class="nc">BaseRNG</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">base_hmc</span> <span class="o">:</span> <span class="k">public</span> <span class="n">base_mcmc</span> <span class="p">{</span>
+ <span class="k">public</span><span class="o">:</span>
+  <span class="n">base_hmc</span><span class="p">(</span><span class="k">const</span> <span class="n">Model</span><span class="o">&amp;</span> <span class="n">model</span><span class="p">,</span> <span class="n">BaseRNG</span><span class="o">&amp;</span> <span class="n">rng</span><span class="p">)</span>
+      <span class="o">:</span> <span class="n">base_mcmc</span><span class="p">(),</span>
+        <span class="n">z_</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="n">num_params_r</span><span class="p">()),</span>
+        <span class="n">integrator_</span><span class="p">(),</span>
+        <span class="n">hamiltonian_</span><span class="p">(</span><span class="n">model</span><span class="p">),</span>
+        <span class="n">rand_int_</span><span class="p">(</span><span class="n">rng</span><span class="p">),</span>
+        <span class="n">rand_uniform_</span><span class="p">(</span><span class="n">rand_int_</span><span class="p">),</span>
+        <span class="n">nom_epsilon_</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span>
+        <span class="n">epsilon_</span><span class="p">(</span><span class="n">nom_epsilon_</span><span class="p">),</span>
+        <span class="n">epsilon_jitter_</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span> <span class="p">{}</span>
+
+  <span class="c1">// ... methods defined here
+</span><span class="c1"></span>
+ <span class="k">protected</span><span class="o">:</span>
+  <span class="k">typename</span> <span class="n">Hamiltonian</span><span class="o">&lt;</span><span class="n">Model</span><span class="p">,</span> <span class="n">BaseRNG</span><span class="o">&gt;::</span><span class="n">PointType</span> <span class="n">z_</span><span class="p">;</span>
+  <span class="n">Integrator</span><span class="o">&lt;</span><span class="n">Hamiltonian</span><span class="o">&lt;</span><span class="n">Model</span><span class="p">,</span> <span class="n">BaseRNG</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">integrator_</span><span class="p">;</span>
+  <span class="n">Hamiltonian</span><span class="o">&lt;</span><span class="n">Model</span><span class="p">,</span> <span class="n">BaseRNG</span><span class="o">&gt;</span> <span class="n">hamiltonian_</span><span class="p">;</span>
+
+  <span class="n">BaseRNG</span><span class="o">&amp;</span> <span class="n">rand_int_</span><span class="p">;</span>
+
+  <span class="c1">// Uniform(0, 1) RNG
+</span><span class="c1"></span>  <span class="n">boost</span><span class="o">::</span><span class="n">uniform_01</span><span class="o">&lt;</span><span class="n">BaseRNG</span><span class="o">&amp;&gt;</span> <span class="n">rand_uniform_</span><span class="p">;</span>
+
+  <span class="kt">double</span> <span class="n">nom_epsilon_</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">epsilon_</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">epsilon_jitter_</span><span class="p">;</span>
+<span class="p">};</span></code></pre></div>
+<p>We see that the class doesn&rsquo;t implement <code>transition()</code>, so it is also an abstract class.
+What it does do is it defines some attributes that all Hamiltonian samplers need.</p>
+<h4 id="class-attributes">class attributes</h4>
+<p>The attributes listed as protected describe the internal state of the sampler. All Hamiltonian samplers
+have these attributes, and the most intersting ones of them are</p>
+<ul>
+<li><code>z_</code>: current state of the sampler (point in parameter space)</li>
+<li><code>integrator_</code>: numerical integrator used to simulate the Hamiltonian dynamics</li>
+<li><code>hamiltonian_</code>: the Hamiltonian system</li>
+<li><code>epsilon_</code> / <code>nom_epsilon_</code>: step size of the integrator</li>
+</ul>
+<h4 id="getters">getters</h4>
+<p>The above are private attributes and should not be directly <a href="https://en.cppreference.com/w/cpp/language/access">accessed</a> from outside. Instead, there are some getter methods that can be used, for example
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">  <span class="k">typename</span> <span class="n">Hamiltonian</span><span class="o">&lt;</span><span class="n">Model</span><span class="p">,</span> <span class="n">BaseRNG</span><span class="o">&gt;::</span><span class="n">PointType</span><span class="o">&amp;</span> <span class="n">z</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">z_</span><span class="p">;</span> <span class="p">}</span></code></pre></div>
+so one could use <code>sampler.z()</code> to get the current point in the (unconstrained) parameter space.</p>
+<h4 id="init_stepsize">init_stepsize()</h4>
+<p>The first actual algorithm that we encouter is the <code>init_stepsize()</code> method of the
+<code>base_hmc</code> class, defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/hmc/nuts/base_nuts.hpp">base_hmc.hpp</a>. This defines how the integrator&rsquo;s initial stepsize (possibly
+given by user) is refined. As we saw in Part 1, this gets called in
+<code>stan::services::sample::hmc_nuts_diag_e_adapt()</code> before any
+MCMC iterations are done.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">  <span class="kt">void</span> <span class="nf">init_stepsize</span><span class="p">(</span><span class="n">callbacks</span><span class="o">::</span><span class="n">logger</span><span class="o">&amp;</span> <span class="n">logger</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">ps_point</span> <span class="n">z_init</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">);</span>
+
+    <span class="c1">// Skip initialization for extreme step sizes
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span> <span class="o">&gt;</span> <span class="mf">1e7</span>
+        <span class="o">||</span> <span class="n">std</span><span class="o">::</span><span class="n">isnan</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span><span class="p">))</span>
+      <span class="k">return</span><span class="p">;</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">.</span><span class="n">sample_p</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_int_</span><span class="p">);</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">,</span> <span class="n">logger</span><span class="p">);</span>
+
+    <span class="c1">// Guaranteed to be finite if randomly initialized
+</span><span class="c1"></span>    <span class="kt">double</span> <span class="n">H0</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">.</span><span class="n">H</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">);</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">integrator_</span><span class="p">.</span><span class="n">evolve</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span><span class="p">,</span>
+                             <span class="n">logger</span><span class="p">);</span>
+
+    <span class="kt">double</span> <span class="n">h</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">.</span><span class="n">H</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">isnan</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
+      <span class="n">h</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">infinity</span><span class="p">();</span>
+
+    <span class="kt">double</span> <span class="n">delta_H</span> <span class="o">=</span> <span class="n">H0</span> <span class="o">-</span> <span class="n">h</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">delta_H</span> <span class="o">&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">log</span><span class="p">(</span><span class="mf">0.8</span><span class="p">)</span> <span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">.</span><span class="n">ps_point</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">z_init</span><span class="p">);</span>
+
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">.</span><span class="n">sample_p</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">rand_int_</span><span class="p">);</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">,</span> <span class="n">logger</span><span class="p">);</span>
+
+      <span class="kt">double</span> <span class="n">H0</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">.</span><span class="n">H</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">);</span>
+
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">integrator_</span><span class="p">.</span><span class="n">evolve</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span><span class="p">,</span>
+                               <span class="n">logger</span><span class="p">);</span>
+
+      <span class="kt">double</span> <span class="n">h</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">.</span><span class="n">H</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">isnan</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">infinity</span><span class="p">();</span>
+
+      <span class="kt">double</span> <span class="n">delta_H</span> <span class="o">=</span> <span class="n">H0</span> <span class="o">-</span> <span class="n">h</span><span class="p">;</span>
+
+      <span class="k">if</span> <span class="p">((</span><span class="n">direction</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">delta_H</span> <span class="o">&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">log</span><span class="p">(</span><span class="mf">0.8</span><span class="p">)))</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">direction</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">delta_H</span> <span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">log</span><span class="p">(</span><span class="mf">0.8</span><span class="p">)))</span>
+        <span class="k">break</span><span class="p">;</span>
+      <span class="k">else</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span> <span class="o">=</span> <span class="n">direction</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">?</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="nl">nom_epsilon_</span>
+                                            <span class="p">:</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span><span class="p">;</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span> <span class="o">&gt;</span> <span class="mf">1e7</span><span class="p">)</span>
+        <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span>
+            <span class="s">&#34;Posterior is improper. &#34;</span>
+            <span class="s">&#34;Please check your model.&#34;</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span>
+            <span class="s">&#34;No acceptably small step size could &#34;</span>
+            <span class="s">&#34;be found. Perhaps the posterior is &#34;</span>
+            <span class="s">&#34;not continuous?&#34;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">.</span><span class="n">ps_point</span><span class="o">::</span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">z_init</span><span class="p">);</span>
+  <span class="p">}</span></code></pre></div>
+<p>On the lines</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">    <span class="kt">double</span> <span class="n">H0</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">.</span><span class="n">H</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">);</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">integrator_</span><span class="p">.</span><span class="n">evolve</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">,</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span><span class="p">,</span><span class="n">logger</span><span class="p">);</span>
+    <span class="kt">double</span> <span class="n">h</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">hamiltonian_</span><span class="p">.</span><span class="n">H</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">);</span>
+    <span class="kt">double</span> <span class="n">delta_H</span> <span class="o">=</span> <span class="n">H0</span> <span class="o">-</span> <span class="n">h</span><span class="p">;</span></code></pre></div>
+<p>the Hamiltonian is first computed at the current point <code>z_</code>, then the integrator evolves the state,
+after which the Hamiltonian is computed at the new state. The change in Hamiltonian (<code>delta_H</code>) then determines how the nominal stepsize (<code>nom_epsilon_</code>) is refined, or if it is suitable so that the
+actual MCMC sampling can start.</p>
+<h3 id="base_nuts">base_nuts</h3>
+<p>This is defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/hmc/nuts/base_nuts.hpp">base_nuts.hpp</a>, and is the base class for No-U-Turn samplers with multinomial sampling. This class, which derives from <code>base_hmc</code>, is the first place where we encounter an implementation of <code>transition()</code>. You can read the comments in the source code of the <code>transition()</code> method to get and idea of the progress of the algorithm. We won&rsquo;t go into details
+of the NUTS algorithm here, but just notice that the <code>transition()</code> function
+takes as input a <code>sample&amp; init_sample</code> and generates a new <code>sample</code> object and returns it. Here, <code>sample</code> is a class that describes one MCMC draw, and it is defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/sample.hpp">sample.hpp</a>.</p>
+<h3 id="diag_e_nuts">diag_e_nuts</h3>
+<p>This is a base class for NUTS with the diagonal HMC metric (diagonal mass matrix), and derives from <code>base_nuts</code>. There are similar classes for the dense and unit metric too. There are no new methods here.</p>
+<h3 id="adapt_diag_e_nuts">adapt_diag_e_nuts</h3>
+<p>Finally we get to the class the defines the adaptive NUTS sampler with the diagnal metric. This class, <code>adapt_diag_e_nuts</code>, derives from <code>diag_e_nuts</code>. It overrides the <code>transition()</code> method with</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">  <span class="n">sample</span> <span class="nf">transition</span><span class="p">(</span><span class="n">sample</span><span class="o">&amp;</span> <span class="n">init_sample</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">::</span><span class="n">logger</span><span class="o">&amp;</span> <span class="n">logger</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">sample</span> <span class="n">s</span> <span class="o">=</span> <span class="n">diag_e_nuts</span><span class="o">&lt;</span><span class="n">Model</span><span class="p">,</span> <span class="n">BaseRNG</span><span class="o">&gt;::</span><span class="n">transition</span><span class="p">(</span><span class="n">init_sample</span><span class="p">,</span> <span class="n">logger</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">adapt_flag_</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">stepsize_adaptation_</span><span class="p">.</span><span class="n">learn_stepsize</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span><span class="p">,</span>
+                                                <span class="n">s</span><span class="p">.</span><span class="n">accept_stat</span><span class="p">());</span>
+
+      <span class="kt">bool</span> <span class="n">update</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">var_adaptation_</span><span class="p">.</span><span class="n">learn_variance</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">.</span><span class="n">inv_e_metric_</span><span class="p">,</span>
+                                                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">.</span><span class="n">q</span><span class="p">);</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="n">update</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">init_stepsize</span><span class="p">(</span><span class="n">logger</span><span class="p">);</span>
+
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">stepsize_adaptation_</span><span class="p">.</span><span class="n">set_mu</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span><span class="p">));</span>
+        <span class="k">this</span><span class="o">-&gt;</span><span class="n">stepsize_adaptation_</span><span class="p">.</span><span class="n">restart</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">s</span><span class="p">;</span>
+  <span class="p">}</span></code></pre></div>
+<p>The actual transition</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">sample</span> <span class="n">s</span> <span class="o">=</span> <span class="n">diag_e_nuts</span><span class="o">&lt;</span><span class="n">Model</span><span class="p">,</span> <span class="n">BaseRNG</span><span class="o">&gt;::</span><span class="n">transition</span><span class="p">(</span><span class="n">init_sample</span><span class="p">,</span> <span class="n">logger</span><span class="p">);</span></code></pre></div>
+is still performed by calling the implementation of the
+parent class. This is the implementation defined in <code>base_nuts</code>, because <code>diag_e_nuts</code> does not override it.</p>
+<p>The other code is for adapting the HMC metric and the integrator step size. To study how this work,
+we need to find out what <code>stepsize_adaptation_</code> and <code>var_adaptation_</code> are. However, we can&rsquo;t seem to find them in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/hmc/nuts/adapt_diag_e_nuts.hpp">adapt_diag_e_nuts.hpp</a>. So what is again going on?</p>
+<h2 id="adaptation">Adaptation</h2>
+<p>We find that in addition to <code>diag_e_nuts</code>, the <code>adapt_diag_e_nuts</code> class derives also from another  class, called <code>stepsize_var_adapter</code> (defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/stepsize_var_adapter.hpp">stepsize_var_adapter.hpp</a>).</p>
+<h3 id="class-hierarchy">Class hierarchy</h3>
+<center><img src="/images/post-02/adaptation.png" alt="Adaptation Classes" width=480></center>
+<p>The above diagram explains why sampler objects of class <code>adapt_diag_e_nuts</code> have the <code>stepsize_adaptation_</code> and <code>var_adaptation_</code> attributes. The former is for adapting the integrator step size and the latter for adapting the mass matrix diagonal. The metric is adapted in three <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/windowed_adaptation.hpp">windows</a>, which are called <em>init_buffer</em>,  <em>term_buffer</em> and <em>base_window</em>. The the most abstract base class is <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/base_adaptation.hpp">base_adaptation</a>, which doesn&rsquo;t contain any implemented methods.</p>
+<h3 id="algorithms">Algorithms</h3>
+<p>Let&rsquo;s now return to studying the <code>transition()</code> method of the <code>adapt_diag_e_nuts</code> class.
+When the <code>adapt_flag_</code> is on (that is, in the warmup phase), each transition will run the code</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">  <span class="k">this</span><span class="o">-&gt;</span><span class="n">stepsize_adaptation_</span><span class="p">.</span><span class="n">learn_stepsize</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span><span class="p">,</span>
+                                                <span class="n">s</span><span class="p">.</span><span class="n">accept_stat</span><span class="p">());</span>
+
+  <span class="kt">bool</span> <span class="n">update</span> <span class="o">=</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">var_adaptation_</span><span class="p">.</span><span class="n">learn_variance</span><span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">.</span><span class="n">inv_e_metric_</span><span class="p">,</span>
+                                                         <span class="k">this</span><span class="o">-&gt;</span><span class="n">z_</span><span class="p">.</span><span class="n">q</span><span class="p">);</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="n">update</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">init_stepsize</span><span class="p">(</span><span class="n">logger</span><span class="p">);</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">stepsize_adaptation_</span><span class="p">.</span><span class="n">set_mu</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span><span class="p">));</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">stepsize_adaptation_</span><span class="p">.</span><span class="n">restart</span><span class="p">();</span>
+  <span class="p">}</span></code></pre></div>
+<h4 id="learn_stepsize">learn_stepsize()</h4>
+<p>The <code>learn_stepsize()</code> algorithm is defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/stepsize_adaptation.hpp">stepsize_adaptation.hpp</a>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">void</span> <span class="nf">learn_stepsize</span><span class="p">(</span><span class="kt">double</span><span class="o">&amp;</span> <span class="n">epsilon</span><span class="p">,</span> <span class="kt">double</span> <span class="n">adapt_stat</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">++</span><span class="n">counter_</span><span class="p">;</span>
+
+    <span class="n">adapt_stat</span> <span class="o">=</span> <span class="n">adapt_stat</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="n">adapt_stat</span><span class="p">;</span>
+
+    <span class="c1">// Nesterov Dual-Averaging of log(epsilon)
+</span><span class="c1"></span>    <span class="k">const</span> <span class="kt">double</span> <span class="n">eta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">counter_</span> <span class="o">+</span> <span class="n">t0_</span><span class="p">);</span>
+
+    <span class="n">s_bar_</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">eta</span><span class="p">)</span> <span class="o">*</span> <span class="n">s_bar_</span> <span class="o">+</span> <span class="n">eta</span> <span class="o">*</span> <span class="p">(</span><span class="n">delta_</span> <span class="o">-</span> <span class="n">adapt_stat</span><span class="p">);</span>
+
+    <span class="k">const</span> <span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="n">mu_</span> <span class="o">-</span> <span class="n">s_bar_</span> <span class="o">*</span> <span class="n">std</span><span class="o">::</span><span class="n">sqrt</span><span class="p">(</span><span class="n">counter_</span><span class="p">)</span> <span class="o">/</span> <span class="n">gamma_</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">double</span> <span class="n">x_eta</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">pow</span><span class="p">(</span><span class="n">counter_</span><span class="p">,</span> <span class="o">-</span><span class="n">kappa_</span><span class="p">);</span>
+
+    <span class="n">x_bar_</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">x_eta</span><span class="p">)</span> <span class="o">*</span> <span class="n">x_bar_</span> <span class="o">+</span> <span class="n">x_eta</span> <span class="o">*</span> <span class="n">x</span><span class="p">;</span>
+
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+  <span class="p">}</span></code></pre></div>
+<h4 id="learn_variance">learn_variance()</h4>
+<p>The <code>learn_variance()</code> algorithm on the otherhand is defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/var_adaptation.hpp">var_adaptation.hpp</a></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">bool</span> <span class="nf">learn_variance</span><span class="p">(</span><span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&amp;</span> <span class="n">var</span><span class="p">,</span> <span class="k">const</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">&amp;</span> <span class="n">q</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">adaptation_window</span><span class="p">())</span>
+      <span class="n">estimator_</span><span class="p">.</span><span class="n">add_sample</span><span class="p">(</span><span class="n">q</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">end_adaptation_window</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">compute_next_window</span><span class="p">();</span>
+
+      <span class="n">estimator_</span><span class="p">.</span><span class="n">sample_variance</span><span class="p">(</span><span class="n">var</span><span class="p">);</span>
+
+      <span class="kt">double</span> <span class="n">n</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">estimator_</span><span class="p">.</span><span class="n">num_samples</span><span class="p">());</span>
+      <span class="n">var</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mf">5.0</span><span class="p">))</span> <span class="o">*</span> <span class="n">var</span>
+            <span class="o">+</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="p">(</span><span class="mf">5.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mf">5.0</span><span class="p">))</span> <span class="o">*</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">VectorXd</span><span class="o">::</span><span class="n">Ones</span><span class="p">(</span><span class="n">var</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">var</span><span class="p">.</span><span class="n">allFinite</span><span class="p">())</span>
+        <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(...);</span>
+
+      <span class="n">estimator_</span><span class="p">.</span><span class="n">restart</span><span class="p">();</span>
+
+      <span class="o">++</span><span class="n">adapt_window_counter_</span><span class="p">;</span>
+      <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="o">++</span><span class="n">adapt_window_counter_</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span></code></pre></div>
+<p>The interesting thing about this is that it returns <code>true</code> at the end of the three adaptation
+windows, and otherwise <code>false</code>. This return value (<code>update</code>) determines what happens at the end
+of the transition.</p>
+<h4 id="update">update</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">  <span class="k">if</span> <span class="p">(</span><span class="n">update</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">init_stepsize</span><span class="p">(</span><span class="n">logger</span><span class="p">);</span>
+
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">stepsize_adaptation_</span><span class="p">.</span><span class="n">set_mu</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">nom_epsilon_</span><span class="p">));</span>
+    <span class="k">this</span><span class="o">-&gt;</span><span class="n">stepsize_adaptation_</span><span class="p">.</span><span class="n">restart</span><span class="p">();</span>
+  <span class="p">}</span></code></pre></div>
+<p>This part is again an interesting algorithmic detail of the adaptation. We see that at the end of
+each window of metric adaptation, the stepsize adaptation is restarted from 10 times the average stepsize from the previous window. See <a href="https://discourse.mc-stan.org/t/issue-with-dual-averaging/5995">this thread</a> for some motivation, discussion, and potential problems caused by this approach.</p>
+<h2 id="conclusion">Conclusion</h2>
+<ul>
+<li>
+<p>In this post we looked at the hierachy of sampler and adaptation classes in Stan. These are all part of the <code>stan::mcmc</code> namespace, and are needed by the services (<code>stan::services</code>).</p>
+</li>
+<li>
+<p>The algorithmic details of a sampler are defined by its <code>transition</code>. We did not study the
+algorithms in detail, but mainly how the code is organized and where to find the implementations
+of the algorithms.</p>
+</li>
+<li>
+<p>For HMC samplers, one part of the algorithm is always <code>init_stepsize()</code>, which initializes the
+stepsize of the leapfrog integrator before any MCMC transitions.</p>
+</li>
+</ul>
+<p>In this post, we did not go into the details of the <a href="https://github.com/stan-dev/stan/tree/develop/src/stan/mcmc/hmc/hamiltonians">Hamiltonians</a> and <a href="https://github.com/stan-dev/stan/tree/develop/src/stan/mcmc/hmc/integrators">integrators</a>. These have a key role in the NUTS transition, which will hopefully be studied in a future episode of this blog post series.</p>
+
+        </div>
+        
+        
+        
+
+
+        
+        
+        
+        
+<div class="flex flex-col md:flex-row md:justify-between -mx-2 mt-4 px-2 pt-4 border-t">
+    <div>
+        
+    </div>
+    <div class="md:text-right mt-4 md:mt-0">
+        
+        <span class="block font-bold">Next</span>
+        <a href="/posts/post-01/" class="block">Understanding the Stan codebase - Part 1: Finding an entry point</a>
+        
+    </div>
+</div>
+
+        
+
+
+
+    </div>
+    
+    <div class="col-span-2">
+        
+        
+<div class="bg-secondary-bg rounded p-6">
+    <h3 class="text-lg font-semibold mb-4">Series of Posts</h3>
+    <div class="content">
+        
+        
+        <a href="/posts/post-02/">Understanding the Stan codebase - Part 2: Samplers</a>
+        <br />
+        
+        <a href="/posts/post-01/">Understanding the Stan codebase - Part 1: Finding an entry point</a>
+        <br />
+        
+        
+    </div>
+</div>
+        
+        
+        <div class="sticky top-16 z-10 hidden lg:block px-6 py-4  bg-primary-bg ">
+    <span class="text-lg font-semibold">On This Page</span>
+</div>
+<div class="sticky-toc hidden lg:block px-6 pb-6 ">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a>
+      <ul>
+        <li><a href="#recap-of-part-1">Recap of Part 1</a></li>
+        <li><a href="#starting-point-for-part-2">Starting point for Part 2</a></li>
+      </ul>
+    </li>
+    <li><a href="#samplers">Samplers</a>
+      <ul>
+        <li><a href="#base_mcmc">base_mcmc</a></li>
+        <li><a href="#base_hmc">base_hmc</a>
+          <ul>
+            <li><a href="#class-attributes">class attributes</a></li>
+            <li><a href="#getters">getters</a></li>
+            <li><a href="#init_stepsize">init_stepsize()</a></li>
+          </ul>
+        </li>
+        <li><a href="#base_nuts">base_nuts</a></li>
+        <li><a href="#diag_e_nuts">diag_e_nuts</a></li>
+        <li><a href="#adapt_diag_e_nuts">adapt_diag_e_nuts</a></li>
+      </ul>
+    </li>
+    <li><a href="#adaptation">Adaptation</a>
+      <ul>
+        <li><a href="#class-hierarchy">Class hierarchy</a></li>
+        <li><a href="#algorithms">Algorithms</a>
+          <ul>
+            <li><a href="#learn_stepsize">learn_stepsize()</a></li>
+            <li><a href="#learn_variance">learn_variance()</a></li>
+            <li><a href="#update">update</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+</div>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        enableStickyToc();
+    });
+</script>
+        
+    </div>
+    
+
+    
+    
+    <div
+        class="col-span-2  lg:col-span-6 bg-secondary-bg rounded p-6">
+        <h2 class="text-lg font-semibold mb-4">See Also</h2>
+        <div class="content">
+            
+            <a href="/posts/post-01/">Understanding the Stan codebase - Part 1: Finding an entry point</a>
+            <br />
+            
+        </div>
+    </div>
+    
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+        hljs.initHighlightingOnLoad();
+    })
+</script>
+
+      </div>
+    </div>
+    
+  </main>
+  <footer class="pl-scrollbar">
+    <div class="w-full max-w-screen-xl mx-auto"><div class="text-center p-6 pin-b">
+    <p class="text-sm text-tertiary-text">&copy; 2021 Juho Timonen
+ &middot;  Powered by the <a href="https://github.com/wangchucheng/hugo-eureka" class="hover:text-eureka">Eureka</a> theme for <a href="https://gohugo.io" class="hover:text-eureka">Hugo</a></p>
+</div></div>
+  </footer>
+</body>
+
+</html>

@@ -8,11 +8,21 @@
     <language>en</language>
     <copyright>&amp;copy; 2021 Juho Timonen
 </copyright>
-    <lastBuildDate>Mon, 29 Nov 2021 09:00:00 +0200</lastBuildDate><atom:link href="/series/stan-c++/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 14 Jan 2022 06:15:00 +0200</lastBuildDate><atom:link href="/series/stan-c++/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Understanding the Stan codebase - Part 1</title>
+      <title>Understanding the Stan codebase - Part 2: Samplers</title>
+      <link>/posts/post-02/</link>
+      <pubDate>Fri, 14 Jan 2022 06:15:00 +0200</pubDate>
+      
+      <guid>/posts/post-02/</guid>
+      <description>Introduction Recap of Part 1 We pick up from where we left off in Part 1. We found out that CmdStan calls the Stan services in cmdstan::command(). For example with the command-line call
+mymodel.exe id=1 method=sample algorithm=hmc engine=nuts adapt engaged=1   the called service is stan::services::sample::hmc_nuts_diag_e_adapt() which then calls stan::services::util::run_adaptive_sampler() which calls stan::services::util::generate_transitions().  Note: All code pieces shown from now on in this post are adapted from https://github.com/stan-dev/stan, licenced under the new BSD licence.</description>
+    </item>
+    
+    <item>
+      <title>Understanding the Stan codebase - Part 1: Finding an entry point</title>
       <link>/posts/post-01/</link>
-      <pubDate>Mon, 29 Nov 2021 09:00:00 +0200</pubDate>
+      <pubDate>Mon, 29 Nov 2021 03:01:05 +0200</pubDate>
       
       <guid>/posts/post-01/</guid>
       <description>Introduction So, you have your Stan model written and are doing inference for it, but something weird is happening? Or maybe you want to extend Stan but don&amp;rsquo;t know where to start because the source code repositories look daunting. These are some of the possible reasons why someone might want to study the internals of Stan, and what is happening under the hood. I have for various reasons for a long time wanted to just see what is happening line-by-line.</description>
