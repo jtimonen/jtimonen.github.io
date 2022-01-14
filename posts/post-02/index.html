@@ -64,7 +64,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/images/icon_hu07c85376caca4551e603fa2d74701141_5499_180x180_fill_box_center_3.png">
 
 <meta name="description"
-  content="Studying the hierarchy of different sampler classes in Stan.">
+  content="Studying the hierarchy of different MCMC sampler classes in Stan.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -92,7 +92,7 @@
         "@id": "/posts/post-02/"
     },
     "headline": "Understanding the Stan codebase - Part 2: Samplers | Juho Timonen","datePublished": "2022-01-14T06:15:00+02:00",
-    "dateModified": "2022-01-14T06:16:42+02:00",
+    "dateModified": "2022-01-14T06:50:43+02:00",
     "wordCount":  1693 ,
     "publisher": {
         "@type": "Person",
@@ -102,7 +102,7 @@
             "url": "/images/icon.png"
         }
         },
-    "description": "Studying the hierarchy of different sampler classes in Stan."
+    "description": "Studying the hierarchy of different MCMC sampler classes in Stan."
 }
 </script><meta property="og:title" content="Understanding the Stan codebase - Part 2: Samplers | Juho Timonen" />
 <meta property="og:type" content="article" />
@@ -115,7 +115,7 @@
 
 
 
-<meta property="og:description" content="Studying the hierarchy of different sampler classes in Stan." />
+<meta property="og:description" content="Studying the hierarchy of different MCMC sampler classes in Stan." />
 
 
 
@@ -134,7 +134,7 @@
 <meta property="article:published_time" content="2022-01-14T06:15:00&#43;02:00" />
 
 
-<meta property="article:modified_time" content="2022-01-14T06:16:42&#43;02:00" />
+<meta property="article:modified_time" content="2022-01-14T06:50:43&#43;02:00" />
 
 
 
@@ -355,7 +355,7 @@ have these attributes, and the most intersting ones of them are</p>
 so one could use <code>sampler.z()</code> to get the current point in the (unconstrained) parameter space.</p>
 <h4 id="init_stepsize">init_stepsize()</h4>
 <p>The first actual algorithm that we encouter is the <code>init_stepsize()</code> method of the
-<code>base_hmc</code> class, defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/hmc/nuts/base_nuts.hpp">base_hmc.hpp</a>. This defines how the integrator&rsquo;s initial stepsize (possibly
+<code>base_hmc</code> class, defined in <a href="https://github.com/stan-dev/stan/blob/develop/src/stan/mcmc/hmc/base_hmc.hpp">base_hmc.hpp</a>. This defines how the integrator&rsquo;s initial stepsize (possibly
 given by user) is refined. As we saw in Part 1, this gets called in
 <code>stan::services::sample::hmc_nuts_diag_e_adapt()</code> before any
 MCMC iterations are done.</p>
