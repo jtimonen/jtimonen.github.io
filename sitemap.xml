@@ -1,29 +1,31 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/</loc>
-    <lastmod>2022-01-14T06:50:43+02:00</lastmod>
-  </url><url>
-    <loc>/series/</loc>
-    <lastmod>2022-01-14T06:50:43+02:00</lastmod>
-  </url><url>
-    <loc>/series/stan-c&#43;&#43;/</loc>
-    <lastmod>2022-01-14T06:50:43+02:00</lastmod>
-  </url><url>
-    <loc>/posts/post-02/</loc>
-    <lastmod>2022-01-14T06:50:43+02:00</lastmod>
-  </url><url>
-    <loc>/posts/post-01/</loc>
-    <lastmod>2021-12-03T16:03:18+02:00</lastmod>
-  </url><url>
-    <loc>/authors/</loc>
-  </url><url>
-    <loc>/categories/</loc>
-  </url><url>
-    <loc>/posts/</loc>
-    <lastmod>2021-12-02T15:25:21+02:00</lastmod>
-  </url><url>
-    <loc>/tags/</loc>
+    <loc>https://jtimonen.github.io/index.html</loc>
+    <lastmod>2024-09-18T18:22:58.598Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jtimonen.github.io/blog.html</loc>
+    <lastmod>2024-09-18T01:16:22.468Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jtimonen.github.io/posts/test/index.html</loc>
+    <lastmod>2024-09-18T01:16:46.044Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jtimonen.github.io/posts/post-01/index.html</loc>
+    <lastmod>2024-09-18T18:39:40.095Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jtimonen.github.io/posts/post-02/index.html</loc>
+    <lastmod>2024-09-18T18:40:01.183Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jtimonen.github.io/publications.html</loc>
+    <lastmod>2024-09-18T19:07:26.733Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jtimonen.github.io/software.html</loc>
+    <lastmod>2024-09-18T19:07:29.965Z</lastmod>
   </url>
 </urlset>

@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Applied mathematics and programming.">
 
-<title>Juho Timonen</title>
+<title>Juho Timonen - Posts</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -32,9 +31,12 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./images/icon.png" rel="icon" type="image/png">
+<script src="site_libs/quarto-listing/list.min.js"></script>
+<script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
@@ -67,12 +69,70 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script>
 
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed fullcontent">
+<body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -90,11 +150,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./blog.html"> 
+    <a class="nav-link active" href="./blog.html" aria-current="page"> 
 <span class="menu-text">Blog</span></a>
   </li>  
   <li class="nav-item">
@@ -116,48 +176,109 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Stan, C++">Stan, C++ <span class="quarto-category-count">(2)</span></div></div></div>
 <!-- main -->
-<div class="quarto-about-jolla content">
-  <img src="images/profile.jpg" class="about-image
-  round " style="height: 15em; width: 15em;">
- <header id="title-block-header" class="quarto-title-block default">
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Juho Timonen</h1>
+<h1 class="title">Posts</h1>
 </div>
-<div>
-  <div class="description">
-    Applied mathematics and programming.
-  </div>
-</div>
+
+
+
 <div class="quarto-title-meta">
+
+    
+  
+    
   </div>
-</header><main class="content" id="quarto-document-content">
-<p>I am a doctoral student in the <a href="https://research.cs.aalto.fi/csb/">Computational Systems Biology</a> group of Aalto University, Department of Computer Science. My research topics and interests include Gaussian processes for longitudinal data and Bayesian ordinary differential equation models. I work with <a href="https://www.generable.com/">Generable Inc.</a>, employing statistical models to support drug development.</p>
+  
 
 
-</main> 
-  <hr class="about-sep">
-   <div class="about-links">
-  <a href="https://github.com/jtimonen" class="about-link" rel="" target="">
-    <i class="bi bi-github"></i>
-     <span class="about-link-text">Github</span>
-  </a>
-  <a href="https://scholar.google.com/citations?user=jnH7juMAAAAJ&amp;hl=fi" class="about-link" rel="" target="">
-    <i class="bi bi-book"></i>
-     <span class="about-link-text">Google Scholar</span>
-  </a>
-  <a href="https://www.linkedin.com/in/jtimo/" class="about-link" rel="" target="">
-    <i class="bi bi-linkedin"></i>
-     <span class="about-link-text">LinkedIn</span>
-  </a>
-  <a href="https://www.strava.com/athletes/89082730" class="about-link" rel="" target="">
-    <i class="bi bi-strava"></i>
-     <span class="about-link-text">Strava</span>
-  </a>
+</header>
+
+
+<p>Blog posts.</p>
+
+
+
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-categories="Stan, C++" data-listing-date-sort="1642154400000" data-listing-file-modified-sort="1726684801183" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3096">
+<div class="thumbnail">
+<p><a href="./posts/post-02/index.html" class="no-external"></a></p><a href="./posts/post-02/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\post-02\sampler_class_inheritance.png" alt="Sampler Classes"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/post-02/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/post-02/index.html" class="no-external">Understanding the Stan codebase - Part 2: Samplers</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/post-02/index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Stan, C++'); return false;">
+Stan, C++
 </div>
 </div>
- <!-- /main -->
+<div class="listing-description">
+<a href="./posts/post-02/index.html" class="no-external">Studying the C++ code of the NUTS algorithm of Stan.</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/post-02/index.html" class="no-external">
+<div class="listing-date">
+Jan 14, 2022
+</div>
+<div class="listing-author">
+Juho Timonen
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="Stan, C++" data-listing-date-sort="1638147665000" data-listing-file-modified-sort="1726684780095" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12" data-listing-word-count-sort="2263">
+<div class="thumbnail">
+<p><a href="./posts/post-01/index.html" class="no-external"></a></p><a href="./posts/post-01/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\post-01\stan-structure.png" alt="Stan Organization"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/post-01/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/post-01/index.html" class="no-external">Understanding the Stan codebase - Part 1: Finding an entry point</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/post-01/index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('Stan, C++'); return false;">
+Stan, C++
+</div>
+</div>
+<div class="listing-description">
+<a href="./posts/post-01/index.html" class="no-external">Overview of the different libraries related to Stan and their organization, and finding and entry point to the internal C++ code.</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/post-01/index.html" class="no-external">
+<div class="listing-date">
+Nov 29, 2021
+</div>
+<div class="listing-author">
+Juho Timonen
+</div>
+</a>
+</div>
+</div>
+</div>
+<div class="listing-no-matching d-none">
+No matching items
+</div>
+</div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -178,6 +299,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
   toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
   const isCodeAnnotation = (el) => {
     for (const clz of el.classList) {
       if (clz.startsWith('code-annotation-')) {                     

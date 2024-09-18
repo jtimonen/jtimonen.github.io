@@ -6,9 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Applied mathematics and programming.">
 
-<title>Juho Timonen</title>
+<title>Juho Timonen - Software</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -35,6 +34,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
@@ -72,7 +72,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed fullcontent">
+<body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -90,7 +90,7 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
@@ -102,7 +102,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Publications</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./software.html"> 
+    <a class="nav-link active" href="./software.html" aria-current="page"> 
 <span class="menu-text">Software</span></a>
   </li>  
 </ul>
@@ -116,48 +116,45 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
 <!-- main -->
-<div class="quarto-about-jolla content">
-  <img src="images/profile.jpg" class="about-image
-  round " style="height: 15em; width: 15em;">
- <header id="title-block-header" class="quarto-title-block default">
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Juho Timonen</h1>
+<h1 class="title">Software</h1>
 </div>
-<div>
-  <div class="description">
-    Applied mathematics and programming.
-  </div>
-</div>
+
+
+
 <div class="quarto-title-meta">
+
+    
+  
+    
   </div>
-</header><main class="content" id="quarto-document-content">
-<p>I am a doctoral student in the <a href="https://research.cs.aalto.fi/csb/">Computational Systems Biology</a> group of Aalto University, Department of Computer Science. My research topics and interests include Gaussian processes for longitudinal data and Bayesian ordinary differential equation models. I work with <a href="https://www.generable.com/">Generable Inc.</a>, employing statistical models to support drug development.</p>
+  
 
 
-</main> 
-  <hr class="about-sep">
-   <div class="about-links">
-  <a href="https://github.com/jtimonen" class="about-link" rel="" target="">
-    <i class="bi bi-github"></i>
-     <span class="about-link-text">Github</span>
-  </a>
-  <a href="https://scholar.google.com/citations?user=jnH7juMAAAAJ&amp;hl=fi" class="about-link" rel="" target="">
-    <i class="bi bi-book"></i>
-     <span class="about-link-text">Google Scholar</span>
-  </a>
-  <a href="https://www.linkedin.com/in/jtimo/" class="about-link" rel="" target="">
-    <i class="bi bi-linkedin"></i>
-     <span class="about-link-text">LinkedIn</span>
-  </a>
-  <a href="https://www.strava.com/athletes/89082730" class="about-link" rel="" target="">
-    <i class="bi bi-strava"></i>
-     <span class="about-link-text">Strava</span>
-  </a>
+</header>
+
+
+<p>I have written many R packages for statistical modeling that use <a href="https://mc-stan.org/">Stan</a> under the hood for fitting the models.</p>
+<ul>
+<li><a href="https://github.com/jtimonen/odemodeling">odemodeling</a>: Building and fitting Bayesian ODE models</li>
+<li><a href="https://github.com/jtimonen/lgpr2">lgpr2</a>: Approximate GP modeling of longitudinal data</li>
+<li><a href="https://jtimonen.github.io/lgpr-usage/">lgpr</a>: Modeling longitudinal data using Gaussian processes</li>
+</ul>
+<div class="border">
+
 </div>
-</div>
- <!-- /main -->
+<p><img src="images/lgpr.png" class="img-fluid" width="500"></p>
+
+
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -178,6 +175,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
   toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
   const isCodeAnnotation = (el) => {
     for (const clz of el.classList) {
       if (clz.startsWith('code-annotation-')) {                     
